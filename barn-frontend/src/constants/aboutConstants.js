@@ -1,3 +1,9 @@
+import aishah from '../assets/aishah.png';
+import asyiqin from '../assets/asyiqin.png';
+import beldron from '../assets/beldron.png';
+import iyzman from '../assets/iyzman.png';
+import fernado from '../assets/fernado.png';
+
 // About constants for the application
 export const ABOUT_CONTENT = {
   title: 'About SeaWise',
@@ -39,36 +45,36 @@ export const COMPANY_INFO = {
 
 // Team members data - Updated with actual SeaWise team from BarnaClean document
 export const TEAM_MEMBERS = [
-  {
+    {
     name: 'Nor Asyiqin Nazirah Binti Rapandi',
-    role: 'Pitcher & Product Presenter',
-    bio: 'Leads product presentation and business development initiatives for BarnaClean marine solutions.',
-    image: null, // Placeholder for future image integration
-    contact: '0128699358' // From document
+    role: 'Team Leader & Frontend Developer',
+    bio: 'Technical team leader with expertise in frontend development and project coordination for marine technology solutions.',
+    image: asyiqin
   },
   {
     name: 'Beldron Feadrek',
-    role: 'Team Leader & Frontend Developer',
-    bio: 'Technical team leader with expertise in frontend development and project coordination for marine technology solutions.',
-    image: null
+    role: 'Pitcher & Product Presenter',
+    bio: 'Leads product presentation and business development initiatives for BarnaClean marine solutions.',
+    image: beldron // Placeholder for future image integration
   },
+
   {
     name: 'Fernando George Anak Mani',
     role: 'AI/ML Engineer',
     bio: 'Specialist in artificial intelligence and machine learning, developing innovative biofouling prediction algorithms and route optimization systems.',
-    image: null
+    image: fernado
   },
   {
-    name: 'Iyzman Daniel Bin Mijir',
+    name: 'Iyzman Daniel Bin Mijirun',
     role: 'Backend Developer / Full Stack Engineer',
     bio: 'Full-stack engineer focusing on robust Python (FastAPI) server development and AI engine integration for marine analytics.',
-    image: null
+    image: iyzman
   },
   {
-    name: 'Unsiti Nur Aishah Binti Juan',
+    name: 'Siti Nur Aishah Binti Juan',
     role: 'Big Data Analyst / Data Engineer',
     bio: 'Data engineering specialist managing AIS data, marine weather patterns, and oceanographic datasets for predictive analytics.',
-    image: null
+    image: aishah
   }
 ];
 
