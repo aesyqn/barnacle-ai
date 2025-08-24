@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CgProfile } from 'react-icons/cg';
-import { FaSignOutAlt, FaUser, FaBars, FaTimes } from 'react-icons/fa'; // Import FaBars and FaTimes
+import { FaSignOutAlt, FaUser, FaBars, FaTimes } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 import { NAVIGATION_LINKS, LOGIN_BUTTON } from '../../constants/navigationConstants';
 import { DESIGN_TOKENS } from '../../constants/designTokens';
@@ -13,18 +13,16 @@ const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // New state for mobile menu
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   
-  // Authentication context
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   
-  // User display information with improved extraction
   const userName = getUserDisplayName(user);
   const userInitials = getUserInitials(user);
   const userRole = user?.role || 'Demo User';
 
-  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -42,7 +40,7 @@ const NavBar = () => {
   const handleNavigation = (path) => {
     navigate(path);
     setIsProfileMenuOpen(false);
-    setIsMobileMenuOpen(false); // Close mobile menu on navigation
+    setIsMobileMenuOpen(false);
   };
 
   const handleLogout = async () => {
@@ -53,7 +51,6 @@ const NavBar = () => {
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
-      // Still navigate away on logout failure for UX
       setIsProfileMenuOpen(false);
       navigate('/');
     }
@@ -128,31 +125,6 @@ const NavBar = () => {
                     </span>
                   </div>
                 </button>
-        {/* Authentication Section */}
-        {isAuthenticated ? (
-          <div className="flex items-center space-x-2 ml-6">
-            <div className="relative" ref={profileMenuRef}>
-              <button
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                aria-label="User profile menu"
-                aria-expanded={isProfileMenuOpen}
-                className={`flex items-center space-x-3 p-2 rounded-lg ${DESIGN_TOKENS.animations.transition.fast} focus:outline-none focus:ring-2 focus:ring-blue-300 hover:bg-blue-50`}
-              >
-                {/* User Avatar */}
-                <div className="w-9 h-9 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-md">
-                  {userInitials || <FaUser className="text-sm" />}
-                </div>
-                
-                {/* User Info */}
-                <div className="flex flex-col text-left">
-                  <span className="text-sm font-semibold text-gray-700 leading-tight">
-                    {userName}
-                  </span>
-                  <span className="text-xs text-gray-500 leading-tight font-medium">
-                    {userRole}
-                  </span>
-                </div>
-              </button>
 
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
@@ -202,9 +174,9 @@ const NavBar = () => {
             className="p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
             {isMobileMenuOpen ? (
-              <FaTimes className="h-6 w-6" /> // 'X' icon when open
+              <FaTimes className="h-6 w-6" />
             ) : (
-              <FaBars className="h-6 w-6" /> // Burger icon when closed
+              <FaBars className="h-6 w-6" />
             )}
           </button>
         </div>
