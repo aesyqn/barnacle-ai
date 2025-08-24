@@ -25,26 +25,43 @@ export const MaritimeToastProvider = ({ children }) => {
     }, 3000);
 
     const id = Date.now() + Math.random();
+    
+    // Configuration for notification durations
+    const DEFAULT_DURATION = 4000; // 4 seconds
+    const MAX_PERSISTENT_DURATION = 15000; // 15 seconds maximum for persistent notifications
+    const ERROR_DURATION = 8000; // 8 seconds for errors
+    
+    // Determine duration based on type and options
+    let duration = options.duration || DEFAULT_DURATION;
+    
+    // Special duration handling for different types
+    if (options.type === 'error' && !options.duration) {
+      duration = ERROR_DURATION;
+    }
+    
+    // Force auto-dismiss for persistent notifications after maximum time
+    const shouldPersist = options.persist && options.type !== 'error';
+    const finalDuration = shouldPersist ? MAX_PERSISTENT_DURATION : duration;
+    
     const toast = {
       id,
       message,
       type: options.type || 'info',
-      duration: options.duration || 4000,
+      duration: finalDuration,
       icon: options.icon || getDefaultIcon(options.type || 'info'),
       subtitle: options.subtitle,
       vesselId: options.vesselId,
       priority: options.priority || 'normal',
-      persist: options.persist || false,
+      persist: shouldPersist,
       ...options
     };
 
     setToasts(prev => [...prev, toast]);
 
-    if (toast.duration > 0 && !toast.persist) {
-      setTimeout(() => {
-        setToasts(prev => prev.filter(t => t.id !== id));
-      }, toast.duration);
-    }
+    // Always set auto-dismiss timer, even for persistent notifications
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, finalDuration);
 
     return id;
   }, []);

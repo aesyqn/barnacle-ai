@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaGoogle, FaGithub, FaApple, FaExclamationTriangle } from 'react-icons/fa';
 import { HiMail, HiLockClosed } from 'react-icons/hi';
 import { InlineLoading } from '../shared/Loading';
-import { selectLoginError, selectIsLoading } from '../../redux/Slices/userSlice';
-import { useCustomMaritimeNotifications } from '../../hooks/useCustomMaritimeNotifications';
+import { useAuth } from '../../contexts/AuthContext';
+import { useMaritimeNotifications } from '../../hooks/useMaritimeNotifications';
 
-const LoginForm = ({ onToggleMode, onSubmit }) => {
+const LoginForm = ({ onToggleMode }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -15,19 +14,36 @@ const LoginForm = ({ onToggleMode, onSubmit }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   
-  // Redux selectors
-  const loginError = useSelector(selectLoginError);
-  const isLoading = useSelector(selectIsLoading);
+  // Authentication context
+  const { login, isLoggingIn, error } = useAuth();
   
-  // Custom maritime notifications
-  const notifications = useCustomMaritimeNotifications();
+  // Maritime notifications
+  const notifications = useMaritimeNotifications();
 
-  // Show error notification when login fails
-  useEffect(() => {
-    if (loginError) {
-      notifications.system.error(`Login failed: ${loginError}`);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log('LoginForm handleSubmit called');
+    console.log('Form data:', formData);
+    console.log('isLoggingIn:', isLoggingIn);
+    
+    if (!isLoggingIn) {
+      try {
+        console.log('Calling login function...');
+        await login({
+          email: formData.email,
+          password: formData.password,
+          rememberMe: formData.rememberMe
+        });
+        console.log('Login function completed successfully');
+        // Success notification is handled in AuthContext
+      } catch (error) {
+        console.error('Login function failed:', error);
+        // Error notification is handled in AuthContext
+      }
+    } else {
+      console.log('Login already in progress, skipping...');
     }
-  }, [loginError]); // Remove notifications from dependencies to prevent infinite loop
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,20 +51,6 @@ const LoginForm = ({ onToggleMode, onSubmit }) => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (onSubmit && !isLoading) {
-      try {
-        notifications.system.dataProcessing('Authentication', 'processing');
-        await onSubmit(formData);
-        notifications.user.loginSuccess('Captain');
-      } catch (error) {
-        // Error handling is managed by Redux and useEffect
-        console.error('Login failed:', error);
-      }
-    }
   };
 
   const handleSocialLogin = (provider) => {
@@ -59,13 +61,13 @@ const LoginForm = ({ onToggleMode, onSubmit }) => {
   return (
     <div className="space-y-6">
       {/* Error Display */}
-      {loginError && (
+      {error && (
         <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
           <div className="flex items-center">
             <FaExclamationTriangle className="h-5 w-5 text-red-400 mr-3" />
             <div>
               <p className="text-sm font-medium text-red-800">
-                {loginError}
+                {error.message || 'Login failed'}
               </p>
             </div>
           </div>
@@ -176,15 +178,15 @@ const LoginForm = ({ onToggleMode, onSubmit }) => {
         {/* Sign In Button */}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoggingIn}
           className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl 
                      transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20
-                     ${isLoading 
+                     ${isLoggingIn 
                        ? 'opacity-70 cursor-not-allowed' 
                        : 'hover:from-blue-700 hover:to-indigo-700'
                      }`}
         >
-          {isLoading ? (
+          {isLoggingIn ? (
             <div className="flex items-center justify-center">
               <InlineLoading text="Signing in..." ariaLabel="Logging in" />
             </div>

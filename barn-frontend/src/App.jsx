@@ -8,12 +8,16 @@ import ErrorBoundary from './components/shared/ErrorBoundary';
 import Help from './components/shared/Help';
 import ScrollToTop from './components/shared/ScrollToTop';
 import { useKeyboardShortcuts, SkipLinks } from './hooks/useKeyboardShortcuts.jsx';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute, { PublicRoute } from './components/auth/ProtectedRoute';
 
 function App() {
   return (
     <ErrorBoundary>
       <Router>
-        <AppContent />
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </Router>
     </ErrorBoundary>
   )
@@ -36,14 +40,39 @@ function AppContent() {
       
       <main id="main-content" role="main">
         <Routes>
+          {/* Public routes */}
           <Route path='/' element={<Home />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/signup' element={<SignUp />} />
-          <Route path='/statistics' element={<Statistics />} />
-          <Route path='/model' element={<Model />} />
+          <Route 
+            path='/login' 
+            element={
+              <PublicRoute restricted={true}>
+                <Login />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path='/signup' 
+            element={
+              <PublicRoute restricted={true}>
+                <SignUp />
+              </PublicRoute>
+            } 
+          />
           <Route path='/demo' element={<Demo />} />
           <Route path='/pricing' element={<Pricing />} />
+          <Route path='/model' element={<Model />} />
           <Route path='/about' element={<About />} />
+          
+          {/* Protected routes - require authentication */}
+          <Route 
+            path='/statistics' 
+            element={
+              <ProtectedRoute>
+                <Statistics />
+              </ProtectedRoute>
+            } 
+          />
+          
           {/* Catch-all route for non-existent pages */}
           <Route path='*' element={<NotFound />} />
         </Routes>

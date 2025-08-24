@@ -72,13 +72,32 @@ const mockSignup = (userData) => {
         return;
       }
 
+      // Parse fullName into firstName and lastName
+      let firstName = userData.firstName;
+      let lastName = userData.lastName;
+      
+      if (userData.fullName && (!firstName || !lastName)) {
+        const names = userData.fullName.trim().split(' ');
+        firstName = names[0];
+        lastName = names.length > 1 ? names.slice(1).join(' ') : names[0];
+      }
+
+      // Restrict Administrator role for security
+      const allowedSelfSelectRoles = ['Ship Captain', 'Fleet Operator', 'Demo User'];
+      const userRole = userData.role && allowedSelfSelectRoles.includes(userData.role) ? userData.role : 'Demo User';
+      
+      if (userData.role === 'Administrator') {
+        console.warn('Security: Attempted self-assignment of Administrator role blocked');
+      }
+
       // Create new user
       const newUser = {
         id: MOCK_USERS.length + 1,
         email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        role: userData.role || 'Member',
+        fullName: userData.fullName || `${firstName || ''} ${lastName || ''}`.trim(),
+        firstName,
+        lastName,
+        role: userRole, // Use restricted role
         avatar: null
       };
 
@@ -162,11 +181,11 @@ export const loginUser = createAsyncThunk(
 
 export const signupUser = createAsyncThunk(
   'user/signupUser',
-  async ({ email, password, firstName, lastName, role }, { rejectWithValue }) => {
+  async ({ email, password, fullName, role }, { rejectWithValue }) => {
     try {
       if (USE_MOCK_API) {
         // Use mock signup
-        const data = await mockSignup({ email, password, firstName, lastName, role });
+        const data = await mockSignup({ email, password, fullName, role });
         
         // Store tokens in session storage for new signups
         sessionStorage.setItem('authToken', data.token);
@@ -185,7 +204,7 @@ export const signupUser = createAsyncThunk(
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, password, firstName, lastName, role }),
+          body: JSON.stringify({ email, password, fullName, role }),
         });
 
         if (!response.ok) {

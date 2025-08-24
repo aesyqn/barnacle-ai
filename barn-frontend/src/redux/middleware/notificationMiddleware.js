@@ -51,8 +51,7 @@ export const notificationMiddleware = (store) => (next) => (action) => {
         globalNotificationSystem.addToast(message, {
           type: alert.type === 'error' ? 'error' : 'warning',
           icon: icon,
-          duration: alert.severity === 'critical' ? 0 : 6000,
-          persist: alert.severity === 'critical',
+          duration: alert.severity === 'critical' ? 12000 : 6000, // Critical: 12s, High: 6s
           priority: alert.severity === 'critical' ? 'high' : 'normal',
           subtitle: alert.severity === 'critical' ? 'Critical Alert - Please Acknowledge' : undefined
         });
@@ -112,8 +111,7 @@ export const notificationMiddleware = (store) => (next) => (action) => {
       globalNotificationSystem.addToast('Failed to sync marine data', {
         type: 'error',
         icon: '⚠️',
-        duration: 5000,
-        persist: false
+        duration: 8000 // 8 seconds for data sync errors
       });
       break;
     }

@@ -2,17 +2,21 @@ import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaGoogle, FaGithub, FaApple } from 'react-icons/fa';
 import { HiMail, HiLockClosed, HiUser } from 'react-icons/hi';
 import { InlineLoading } from '../shared/Loading';
+import { useAuth } from '../../contexts/AuthContext';
 
 const SignUpForm = ({ onToggleMode, onSubmit }) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
+    role: 'Demo User',
     agreeToTerms: false
   });
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  
+  // Get loading state from AuthContext
+  const { isSigningUp } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -24,23 +28,48 @@ const SignUpForm = ({ onToggleMode, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (onSubmit && !isLoading) {
-      setIsLoading(true);
+    console.log('SignUpForm handleSubmit called');
+    console.log('Form data:', formData);
+    console.log('isSigningUp:', isSigningUp);
+    
+    // Basic form validation
+    if (!formData.fullName.trim() || formData.fullName.trim().length < 2) {
+      return; // Form validation will show via HTML5 required and browser validation
+    }
+    
+    if (!formData.email.trim()) {
+      return;
+    }
+    
+    if (!formData.password || formData.password.length < 6) {
+      return;
+    }
+    
+    if (!formData.role) {
+      return;
+    }
+    
+    if (!formData.agreeToTerms) {
+      return;
+    }
+    
+    if (onSubmit && !isSigningUp) {
       try {
+        console.log('Calling onSubmit function...');
         await onSubmit(formData);
+        console.log('onSubmit completed successfully');
       } catch (error) {
-        console.error('Sign up failed:', error);
-      } finally {
-        // Reset loading state after a delay to show feedback
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
+        console.error('SignUpForm onSubmit failed:', error);
+        // Error is handled by AuthContext
       }
+    } else {
+      console.log('Signup already in progress or no onSubmit function, skipping...');
     }
   };
 
   const handleSocialLogin = (provider) => {
     // Social authentication integration would be implemented here
+    console.log(`${provider} authentication requested`);
   };
 
   const getPasswordStrength = (password) => {
@@ -84,6 +113,8 @@ const SignUpForm = ({ onToggleMode, onSubmit }) => {
                          }
                          focus:outline-none focus:ring-0`}
               placeholder="👤 Enter your full name"
+              minLength={2}
+              maxLength={100}
               required
             />
           </div>
@@ -146,6 +177,7 @@ const SignUpForm = ({ onToggleMode, onSubmit }) => {
                          }
                          focus:outline-none focus:ring-0`}
               placeholder="🔒 Create password"
+              minLength={6}
               required
             />
             <button
@@ -180,6 +212,53 @@ const SignUpForm = ({ onToggleMode, onSubmit }) => {
               </span>
             </div>
           )}
+        </div>
+
+        {/* Role Selection Field */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700 block">
+            Select Your Role
+          </label>
+          <div className="relative group">
+            <div className={`absolute inset-y-0 left-0 pl-4 flex items-center transition-all duration-300 ${
+              focusedField === 'role' ? 'text-blue-500' : 'text-gray-400'
+            }`}>
+              <HiUser className="h-5 w-5" />
+            </div>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              onFocus={() => setFocusedField('role')}
+              onBlur={() => setFocusedField(null)}
+              className={`w-full pl-12 pr-4 py-3 border-2 rounded-2xl transition-all duration-300 bg-white/50 backdrop-blur-sm
+                         text-gray-700 font-medium
+                         ${
+                           focusedField === 'role'
+                             ? 'border-blue-500 shadow-lg shadow-blue-500/20 bg-white/80'
+                             : 'border-gray-200 hover:border-gray-300'
+                         }
+                         focus:outline-none focus:ring-0`}
+              required
+            >
+              <option value="Demo User">Demo User</option>
+              <option value="Ship Captain">Ship Captain</option>
+              <option value="Fleet Operator">Fleet Operator</option>
+            </select>
+          </div>
+          <div className="text-xs text-gray-600 mt-2 space-y-1">
+            <p className="font-medium text-gray-700">Choose your role:</p>
+            <div className="pl-2 space-y-1">
+              <p>• <span className="font-medium text-blue-600">Demo User:</span> Explore features with sample data</p>
+              <p>• <span className="font-medium text-teal-600">Ship Captain:</span> Manage individual vessel operations</p>
+              <p>• <span className="font-medium text-indigo-600">Fleet Operator:</span> Oversee multiple vessel fleets</p>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mt-3">
+              <p className="text-amber-700 font-medium text-xs">
+                🔒 Administrator access requires invitation from existing admins
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Terms Agreement */}
@@ -220,15 +299,15 @@ const SignUpForm = ({ onToggleMode, onSubmit }) => {
         {/* Sign Up Button */}
         <button
           type="submit"
-          disabled={!formData.agreeToTerms || isLoading}
+          disabled={!formData.fullName || !formData.email || !formData.password || !formData.role || !formData.agreeToTerms || isSigningUp}
           className={`w-full font-semibold py-3 px-6 rounded-xl transform transition-all duration-300 
                      shadow-md hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20
-                     ${formData.agreeToTerms && !isLoading
+                     ${formData.fullName && formData.email && formData.password && formData.role && formData.agreeToTerms && !isSigningUp
                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                      }`}
         >
-          {isLoading ? (
+          {isSigningUp ? (
             <div className="flex items-center justify-center">
               <InlineLoading text="Creating account..." ariaLabel="Creating account" />
             </div>

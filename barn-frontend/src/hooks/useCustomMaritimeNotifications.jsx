@@ -76,7 +76,7 @@ export const useCustomMaritimeNotifications = () => {
           subtitle: `${vesselName}: ${level}% fouling coverage`,
           vesselId: vesselName,
           priority: isCritical ? 'high' : 'normal',
-          persist: isCritical,
+          duration: isCritical ? 10000 : 6000, // Critical: 10s, others: 6s
           addToRedux: isHigh,
           category: 'biofouling'
         }
@@ -164,7 +164,7 @@ export const useCustomMaritimeNotifications = () => {
         type: isConnected ? 'success' : 'error',
         icon: isConnected ? '🟢' : '🔴',
         subtitle: isConnected ? 'All systems operational' : 'Attempting to reconnect...',
-        persist: !isConnected,
+        duration: isConnected ? 4000 : 8000, // Success: 4s, Error: 8s
         addToRedux: !isConnected,
         priority: !isConnected ? 'high' : 'normal'
       });
@@ -175,7 +175,7 @@ export const useCustomMaritimeNotifications = () => {
         type: 'error',
         icon: '❌',
         subtitle: details,
-        persist: true,
+        duration: 10000, // 10 seconds for errors
         addToRedux: true,
         priority: 'high'
       }),
@@ -199,7 +199,7 @@ export const useCustomMaritimeNotifications = () => {
           type: 'warning',
           icon: isEnabled ? '🔧' : '✅',
           subtitle: isEnabled ? 'Some features may be unavailable' : 'All features restored',
-          persist: isEnabled
+          duration: isEnabled ? 12000 : 6000 // Entering: 12s, Completed: 6s
         }
       )
   }, [notify]);
@@ -218,8 +218,8 @@ export const useCustomMaritimeNotifications = () => {
         type: 'error',
         icon: '❌',
         subtitle: error,
-        addToRedux: true,
-        persist: true
+        duration: 8000, // 8 seconds for action failures
+        addToRedux: true
       }),
 
     loginSuccess: (userName) =>
