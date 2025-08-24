@@ -76,20 +76,28 @@ const CompanyInfoSection = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-blue-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500" />
               
               {/* Photo container */}
-              <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
+            <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
                 <div className={`text-center transition-all duration-500 ease-in-out transform ${
-                  isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                    isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                 }`}>
-                  <div className="w-32 h-32 bg-gradient-to-br from-teal-200 to-blue-200 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
-                    <div className="text-gray-700 text-2xl font-bold">
-                      {currentMember.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                  </div>
-                  <p className="text-gray-500 text-sm font-medium">Professional Photo</p>
+                    {currentMember.image ? (
+                        <img
+                            src={currentMember.image}
+                            alt={'portrait of ' + currentMember.name}
+                            className="w-full h-full object-cover rounded-xl shadow-md"
+                        />
+                    ) : (
+                        <div className="w-32 h-32 bg-gradient-to-br from-teal-200 to-blue-200 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                            <div className="text-gray-700 text-2xl font-bold">
+                                {currentMember.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                        </div>
+                    )}
+                    <p className="text-gray-500 text-sm font-medium mt-4">Team Member of <em>SeaWise</em></p>
                 </div>
-              </div>
             </div>
-          </div>
+            </div>
+            </div>
 
           {/* Right Side - Team Member Info */}
           <div className="space-y-8">
@@ -165,6 +173,7 @@ const CompanyInfoSection = () => {
           </div>
         </div>
       </div>
+      
     </section>
   );
 };
